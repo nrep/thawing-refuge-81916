@@ -365,7 +365,7 @@
             }
 
             const client = feathers();
-            const socket = io('http://localhost:3030');
+            const socket = io();
             client.configure(feathers.socketio(socket));
             client.configure(feathers.hooks());
 
