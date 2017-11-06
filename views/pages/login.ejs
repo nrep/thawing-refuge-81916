@@ -91,7 +91,7 @@
         </div>
         <script>
             // Initialize socket
-            const socket = io('http://localhost:3030');
+            const socket = io();
             // Initialize the client
             const client = feathers();
             client.configure(feathers.socketio(socket));
