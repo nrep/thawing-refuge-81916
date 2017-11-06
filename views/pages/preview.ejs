@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Standard Meta -->
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+
+        <!-- Site Properties -->
+        <title> Preview - Sobanuka </title>
+        <link rel="stylesheet" type="text/css" href="../libs/semantic-ui-css/semantic.css">
+        
+        <script src="../scripts/jquery.min.js"></script>
+        <script src="../scripts/transition.js"></script>
+        <script src="../scripts/vue.js"></script>
+        <script src="../scripts/feathers.js"></script>
+        <script src="../scripts/socket.io/socket.io.js"></script>
+        <script src="../scripts/core.min.js"></script>
+        <script src="../scripts/marked.js"></script>
+        <style>
+            #article {
+                width: 68%;
+                margin-top: 4rem;
+            }
+            #blog-post-title {
+                margin-top: 1.5rem;
+                width: 64%;
+            }
+            #body,
+            #description,
+            #blog-post-meta,
+            #blog-post-title {
+                margin-left: 1rem;
+            }
+            #article-date {
+                margin-top: 1rem;
+                width: 30%;
+            }
+            #main {
+                margin-left: 1rem;
+            }
+            #header-image {
+                max-height: 30rem;
+            }
+            .ui.card {
+                box-shadow: 0px 0px 8px 0px grey;
+            }
+            #aside {
+                width: 30%;
+                margin-top: 3rem;
+            }
+            #first-ad {
+                margin-left: -1rem;
+            }
+            #second-ad {
+                margin-left: -1rem;
+            }
+            #author-name {
+                position: relative;
+                bottom: 1rem;
+            }
+            #tags-view span {
+                margin-right: .25rem;
+            }
+            #tags-view {
+                margin-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            #body {
+                margin-bottom: 1rem;
+            }
+            #nav {
+                box-shadow: 0px 0px 8px 0px;
+                background-color: #1136EE
+            }
+            #secondary-menu {
+                display: none;
+            }
+
+            @media only screen and (max-width: 700px) {
+                .ui.blue.fixed.menu {
+                    display: none !important;
+                }
+
+                #secondary-menu {
+                    display: flex;
+                    box-shadow: 0px 0px 8px 0px grey;
+                }
+
+                .secondary.pointing.menu .item,
+                .secondary.pointing.menu .menu {
+                    display: block;
+                }
+
+                .secondary.pointing.menu .toc.item {
+                    display: block;
+                }
+
+                #secondary-menu{
+                    background-color: #0D47A1;
+                }
+
+                i.sidebar.icon {
+                    color: rgba(255, 255, 255, 0.7);
+                }
+
+                i.sidebar.icon:hover {
+                    color: white;
+                }
+            }
+
+            #sidebar-menu {
+                background: #0D47A1;
+            }
+        </style>
+        <script>
+            $(document)
+                .ready(function() {
+                    $('.ui.sidebar')
+                        .sidebar('attach events', '.toc.item');
+                });
+        </script>
+    </head>
+    <body>
+        <!-- Sidebar Menu -->
+        <div class="ui vertical inverted sidebar menu" id="sidebar-menu">
+            <a class="active item">Overview</a>
+            <a class="item">Posts</a>
+            <a class="item">Users</a>
+            <a class="item">Comments</a>
+            <a class="item">Notifications</a>
+        </div>
+        <div class="ui large secondary inverted pointing top fixed menu" id="secondary-menu">
+            <span class="toc item">
+                <a href="#">
+                    <i id="sidebar-icon" class="sidebar icon"></i>
+                </a>
+                <span>Sobanuka</span>
+            </span>
+            <a class="right item">
+                <i class="user icon"></i>
+            </a>
+        </div>
+        <!--- Navigation bar -->
+        <div class="ui inverted blue fixed menu" id="nav">
+            <span class="toc item">
+                <a href="#">
+                    <i id="sidebar-icon" class="sidebar icon"></i>
+                </a>
+                <span>Sobanuka</span>
+            </span>
+            <div class="right menu">
+                <div class="item">
+                    <div class="ui transparent inverted icon input" id="search-box">
+                        <i id="main-search-icon" class="search icon"></i>
+                    </div>
+                </div>
+                <a href="/login" class="item">
+                    <i class="user icon"></i>
+                </a>
+            </div>
+        </div>
+        <div class="pusher">
+            <main id="main" role="main">
+                <div class="ui middle aligned grid">
+                    <div class="ui column" id="article">
+                        <% include ../partials/article-view.ejs %>
+                        </div>
+                            <aside class="ui top aligned right aligned column" id="aside">
+                                <div class="ui fluid card" id="first-ad">
+                                    <div class="ui medium rectangle test ad" data-text="Medium Rectangle"></div>
+                                </div>
+                                <div class="ui fluid card" id="second-ad">
+                                    <div class="ui medium rectangle test ad" data-text="Medium Rectangle"></div>
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <script>
+            // If no id is to be found in the storage
+            // Tell the user to login first
+            if (window.localStorage.getItem('sobanuka-account-id') === null) {
+                document.getElementById('main').innerHTML = '<div class="ui middle aligned center aligned segment">Seems like you didn\'t login. Please <a href="/login">login</a> first.</div>';
+            } else if (window.localStorage.getItem('id-of-article-to-preview') === null) {
+                document.getElementById('main').innerHTML = '<div class="ui middle aligned center aligned segment">Oops! Something went wrong. You can go to the homepage or login</div>';
+            }
+
+            // Initialize socket
+            const socket = io('http://localhost:3030');
+            // Initialize the client
+            const client = feathers()
+                .configure(feathers.hooks())
+                .configure(feathers.socketio(socket));
+                
+
+            // Check if the id of the article to preview is saved in the storage
+            if (window.localStorage.getItem('id-of-article-to-preview') != null) {
+                // Then fetch it
+                socket.emit('posts::get', window.localStorage.getItem('id-of-article-to-preview'), (error, result) => {
+                    // Assign result to the vm's article prop
+                    console.log(result);
+                    vm.article = result;
+
+                    // Then fetch the author of the article
+                    socket.emit('users::get', result.authorId, (error, result) => {
+                        vm.author = result;
+                    });
+                });
+
+            }
+
+            let vm = new Vue({
+                el: '#article',
+                data: {
+                    article: {},
+                    author: {}
+                },
+                methods: {
+                    formatMonth: function(month) {
+                        switch (month) {
+                            case 1: return 'January';
+                            case 2: return 'February';
+                            case 3: return 'March';
+                            case 4: return 'April';
+                            case 5: return 'May';
+                            case 6: return 'June';
+                            case 7: return 'July';
+                            case 8: return 'August';
+                            case 9: return 'September';
+                            case 10: return 'October';
+                            case 11: return 'November';
+                            case 12: return 'December';
+                        }
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

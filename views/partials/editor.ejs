@@ -1,0 +1,54 @@
+<div class="ui icon info attached message">
+    <i class="image icon"></i>
+    <div class="content">
+        <div class="header">
+            Add Media
+        </div>
+        <p>Drag and drop images and other files to be used in the post here</p>
+    </div>
+</div>
+<form action="/uploads" class="ui form attached fluid segment dropzone needsclick dz-clickable" id="my-awesome-dropzone">
+    <div class="dz-message needsclick">
+            Drop files here or click to upload.
+    </div>
+</form>
+<div class="ui icon info attached message">
+    <i class="edit icon"></i>
+    <div class="content">
+        <div class="header">
+            Add all the accompanying stuff
+        </div>
+        <p>Title, body and tags</p>
+    </div>
+</div>
+<form class="ui large form" id="form">
+    <div class="field">
+        <div class="ui input focus">
+            <input id="input-title" type="text" name="title" placeholder="Post title">
+        </div>
+    </div>
+    <div class="field">
+        <div class="ui input">
+            <textarea id="input-body" type="text" name="body" placeholder="Body"></textarea>
+        </div>
+    </div>
+    <div class="field">
+        <input class="ui fluid input" name="tags" id="tags" />
+    </div>
+</form>
+<div class="ui container">
+    <div id="buttons" class="ui right floated buttons">
+        <div id="save-btn" class="ui orange button">
+            <i class="save icon"></i>
+            Save
+        </div>
+        <div id="preview-btn" class="ui primary button">
+            <i class="eye icon"></i>
+            Preview
+        </div>
+        <button class="ui right labeled green icon button">
+            <i class="right arrow icon"></i>
+            Publish
+        </button>
+    </div>
+</div>

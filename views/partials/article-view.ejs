@@ -1,0 +1,54 @@
+<article class="ui fluid card">
+    <img class="ui fluid image" id="header-image" v-bind:src="'../uploads/' + article.titlePic">
+    <div class="ui fluid grid">
+        <div class="ui left aligned column" id="blog-post-title">
+            <div class="ui header">
+                {{ article.title }}
+            </div>
+        </div>
+        <div class="ui right aligned column" id="article-date">
+            <div class="content">
+                <p id="blog-post-meta"> 
+                    {{ formatMonth(article.createdOn.month) + ' ' + article.createdOn.date + ', ' + article.createdOn.year }}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div id="tags-view" class="tags">
+        <span v-for="topic in article.topics" v-bind:id="topic.dynamicId">
+            <a v-bind:class="topic.color" v-bind:href="topic.url" class="ui label">
+                {{ topic.message }}
+            </a>
+        </span>
+    </div>
+    <div id="body" v-html="format(article.body)"></div>
+    <div class="ui equal height equal width grid" id="actions">
+        <a class="column" v-on:click="like(article)">
+            <div class="center aligned text content">
+                <i class="like icon"></i>
+                Like
+                <span class="ui green label">
+                    {{ article.likes }} liked
+                </span>
+            </div>
+        </a>
+        <a class="column" href="#comments">
+            <div class="center aligned text content">
+                <i class="comment icon"></i>
+                Comment
+                <span class="ui green label">
+                    {{ article.comments.length }} comments
+                </span>
+            </div>
+        </a>
+        <a class="column">
+            <div class="center aligned text content">
+                <!-- Your share button code -->
+                <div id="fb-share-button" class="fb-share-button" 
+                    data-href="http://www.your-domain.com/your-page.html" 
+                    data-layout="button">
+                </div>
+            </div>
+        </a>
+    </div>
+</article>

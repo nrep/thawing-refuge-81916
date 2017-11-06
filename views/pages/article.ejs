@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Standard Meta -->
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+        <meta property="og:url" content="http://www.your-domain.com/your-page.html" />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content="Your Website Title" />
+        <meta property="og:description" content="Your description" />
+        <meta property="og:image" content="http://www.your-domain.com/path/image.jpg" />
+
+        <!-- Site Properties -->
+        <title id="title"> Article - Sobanuka </title>
+
+        <script src="../scripts/jquery.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="../libs/semantic-ui-css/semantic.css">
+    
+        <script src="scripts/transition.js"></script>
+        <script src="scripts/vue.js"></script>
+        <script src="scripts/feathers.js"></script>
+        <script src="scripts/socket.io/socket.io.js"></script>
+        <script src="scripts/core.min.js"></script>
+        <script src="scripts/marked.js"></script>
+        <script src="scripts/caman.js"></script>
+        <style>
+            #article {
+                width: 68%;
+                margin-top: 5rem;
+            }
+            #blog-post-title {
+                margin-top: 1.5rem;
+                width: 64%;
+                font-family: Fontin;
+                letter-spacing: .05em;
+            }
+            #body,
+            #blog-post-meta,
+            #blog-post-title {
+                margin-left: 1rem;
+                margin-right: 1rem;
+                margin-bottom: 1rem;
+                font-family: Lato;
+            }
+            #body {
+                font-size: 1.35em;
+                word-spacing: 0.5em;
+                font-weight: 590;
+                letter-spacing: .05em;
+                margin-bottom: 1rem;
+                color: #59595A;
+            }
+            #article-date {
+                margin-top: 1rem;
+                width: 30%;
+                color: #59595A;
+                font-family: Fontin;
+                font-size: 1.2em;
+            }
+            #main {
+                margin-left: 1rem;
+            }
+            #header-image {
+                max-height: 30rem;
+            }
+            .ui.card {
+                box-shadow: 0px 0px 8px 0px grey;
+            }
+            #author-name {
+                position: relative;
+                bottom: 1rem;
+            }
+            #tags-view span {
+                margin-right: .25rem;
+            }
+            #tags-view {
+                margin-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            #nav {
+                box-shadow: 0px 0px 8px 0px;
+                background-color: #1136EE;
+            }
+            #secondary-menu {
+                display: none;
+            }
+            @media only screen and (max-width: 700px) {
+                .ui.blue.fixed.menu {
+                    display: none !important;
+                }
+                #secondary-menu {
+                    display: flex;
+                    box-shadow: 0px 0px 8px 0px grey;
+                }
+                .secondary.pointing.menu .item,
+                .secondary.pointing.menu .menu {
+                    display: block;
+                }
+                .secondary.pointing.menu .toc.item {
+                    display: block;
+                }
+                #secondary-menu{
+                    background-color: #0D47A1;
+                }
+                i.sidebar.icon {
+                    color: rgba(255, 255, 255, 0.7);
+                }
+                i.sidebar.icon:hover {
+                    color: white;
+                }
+            }
+            @font-face {
+                font-family: Fontin, serif;
+                src: url('fonts/fontin/Fontin-Regular.ttf');
+            }
+            @font-face {
+                font-family: Lato, serif;
+                src: url('fonts/lato/Lato-Regular.ttf');
+            }
+            blockquote {
+                border-width: 0.35rem;
+                border-left-color: #4C4CA8;
+                border-style: outset;
+                border-bottom: none;
+                border-top: none;
+                border-right: none;
+                background-color: #FAF0E3;
+            }
+            blockquote p {
+                padding-left: 0.75rem;
+            }
+            h2 {
+                font-size: 1em;
+                color: #3D3DB9;
+            }
+            strong em {
+                color: #3939C7;
+            }
+            #before-comments {
+                margin-left: 1rem;
+                width: 66%;
+            }
+            #comments {
+                margin-bottom: 2rem;
+                margin-top: 1rem;
+                width: 68%;
+                padding: 1rem;
+            }
+            #before-comments {
+                font-size: 1em;
+                word-spacing: 0.5em;
+                font-weight: 590;
+                letter-spacing: .05em;
+            }
+            .ui.form {
+                margin-top: 1rem;
+            }
+            #comment-button {
+                margin-top: 0.5rem;
+                margin-bottom: 1rem;
+            }
+            #input-body {
+                border-top-left-radius: 0rem;
+                border-top-right-radius: 0rem;
+            }
+            #input-name {
+                border-bottom-left-radius: 0rem;
+                border-bottom-right-radius: 0rem;
+                margin-bottom: -1rem;
+            }
+            #footer {
+                background-color: #1136EE;
+                margin-top: 5rem;
+            }
+            #aside {
+                position: fixed;
+                left: 69.25%;
+                bottom: 35%;
+            }
+            #actions {
+                margin-bottom: .75rem;
+                font-family: Fontin;
+                font-size: 1.23em;
+            }
+            #comments div h3 span {
+                margin-bottom: .5rem;
+            }
+            #actions div.content:hover {
+                color: #1136EE;
+            }
+            body {
+                background-color: #ECE0C5;
+            }
+            #banner {
+                width: 100%;
+            }
+            #engage-users {
+                width: 68%;
+                font-size: 1.1em;
+            }
+            a.play-store-btn img {
+                padding: 0rem;
+                margin-bottom: 1rem;
+            }
+            a.play-store-btn {
+                margin-bottom: 2rem;
+            }
+            #body hr {
+                border-color: rgba(255, 255, 255, 0.7);
+            }
+        </style>
+        <script>
+            window.fbAsyncInit = function() {
+                FB.init({
+                    appId: '126825084550011',
+                    cookie: true,
+                    xfbml: true,
+                    version: '2.9'
+                });
+                FB.AppEvents.logPageView();
+            };
+
+            (function(d, s, id) {
+                var js, fjs = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id)) return;
+                js = d.createElement(s); js.id = id;
+                js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1";
+                fjs.parentNode.insertBefore(js, fjs);
+            }
+            (document, 'script', 'facebook-jssdk'));
+        </script>
+    </head>
+    <body>
+        <!-- Sidebar Menu -->
+        <div class="ui vertical inverted sidebar menu" id="sidebar-menu">
+            <a class="active item">Overview</a>
+            <a class="item">Posts</a>
+            <a class="item">Users</a>
+            <a class="item">Comments</a>
+            <a class="item">Notifications</a>
+        </div>
+        <div class="ui large secondary inverted pointing top fixed menu" id="secondary-menu">
+            <span class="toc item">
+                <a href="#">
+                    <i id="sidebar-icon" class="sidebar icon"></i>
+                </a>
+                <span>Sobanuka</span>
+            </span>
+            <a class="right item">
+                <i class="user icon"></i>
+            </a>
+        </div>
+        <!--- Navigation bar -->
+        <div class="ui inverted blue fixed menu" id="nav">
+            <span class="toc item">
+                <a href="/">
+                    <i id="sidebar-icon" class="sidebar icon"></i>
+                    Sobanuka
+                </a>
+            </span>
+            <div class="right menu">
+                <a href="/login" class="item">
+                    <i class="user icon"></i>
+                </a>
+            </div>
+        </div>
+        <div class="pusher">
+            <main id="main" role="main">
+                <div id="article">
+                    <% include ../partials/article-view.ejs %>
+                </div>
+                <!-- Load Facebook SDK for JavaScript -->
+                <div id="fb-root"></div>
+                <div class="ui info message" id="engage-users">
+                    <div class="content">
+                        <p>
+                            Niba wakunze iyi nkuru kanda ku <i class="like icon"></i>mutima werekaneko wayikunze, yisangize abandi kuri <i class="facebook icon"></i>Facebook cyangwa ugire icyo uyivugaho muri comment. 
+                            <strong>
+                                <em>Kutwereka ko mwishimiye ibyo twanditse ni inkunga ikomeye</em>
+                            </strong>
+                            idutera gukomeza kwandika. 
+                            <br>
+                            <br>
+                            <em>
+                                Niba ufite icyo utasobanukiwe neza, cyangwa igitekerezo cyandike muri comment turagerageza gusubiza vuba.
+                            </em>
+                            <br>
+                            <br>
+                            Niba ufite ikintu ushaka ko tugusobanurira kijyanye na mudasobwa, telefone, porogaramu cyangwa online marketing, cyandike muri comment turagerageza kucyandikaho vuba.
+                        </p>
+                    </div>
+                </div>
+                <div class="ui card" id="comments">
+                    <div class="ui minimal comments">
+                        <h3 class="ui blue dividing header">
+                            <span class="ui blue label">
+                                {{ comments.length }}
+                            </span>
+                            Comments
+                        </h3>
+                        <div class="comment" v-for="comment of comments">
+                            <a class="avatar">
+                                <img src="/images/avatar/small/matt.jpg">
+                            </a>
+                            <div class="content">
+                                <a class="author">
+                                    {{ comment.commenter }}
+                                </a>
+                                <div class="metadata">
+                                    <span class="date">
+                                        {{ comment.date }}
+                                    </span>
+                                </div>
+                                <div class="text">
+                                    {{ comment.message }}
+                                </div>
+                            </div>
+                        </div>
+                        <form class="ui reply form">
+                            <div class="field">
+                                <input type="text" placeholder="Name" id="input-name">
+                            </div>
+                            <div class="field">
+                                <textarea id="input-body" placeholder="Comment"></textarea>
+                            </div>
+                            <div class="ui blue labeled submit icon button" v-on:click="save">
+                                <i class="icon edit"></i>
+                                Add Comment
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div id="aside">
+                    <div class="ui medium rectangle test ad" data-text="Medium Rectangle"></div>
+                    <br>
+                    <div class="ui banner test ad" id="banner" data-text="Banner"></div>
+                </div>
+            </main>
+            <!--- Footer content -->
+            <footer class="ui inverted vertical footer segment" id="footer">
+                <div class="ui container">
+                    <div class="ui stackable inverted divided equal height stackable grid">
+                        <div class="three wide column">
+                            <h4 class="ui inverted header">About</h4>
+                            <div class="ui inverted link list">
+                                <a href="#" class="item">Sitemap</a>
+                                <a href="#" class="item">Contact Us</a>
+                                <a href="#" class="item">About Us</a>
+                                <a href="#" class="item">Services</a>
+                            </div>
+                        </div>
+                        <div class="three wide column">
+                            <h4 class="ui inverted header">Read</h4>
+                            <div class="ui inverted link list">
+                                <a href="#" class="item">News</a>
+                                <a href="#" class="item">Technology</a>
+                                <a href="#" class="item">Music</a>
+                                <a href="#" class="item">Videos</a>
+                            </div>
+                        </div>
+                        <div class="ten wide column" data-class="facebook, twitter, google, vk, linkedin, instagram, youtube">
+                            <h4 class="ui inverted header">Share</h4>
+                            <button class="ui circular facebook button">
+                                <i class="facebook icon"></i>
+                                Facebook
+                            </button>
+                            <button class="ui circular twitter button">
+                                <i class="twitter icon"></i>
+                                Twitter
+                            </button>
+                            <button class="ui circular google plus button">
+                                <i class="google icon"></i>
+                                Google Plus
+                            </button>
+                            <h4 class="ui inverted header">Participate</h4>
+                            <button class="ui circular green button">
+                                <i class="signup icon"></i>
+                                Create an account
+                            </button>
+                            <button class="ui circular facebook group button">
+                                <i class="facebook group icon"></i>
+                                Join our Facebook group
+                            </button>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+        <script>
+            if (window.localStorage.getItem('sobanuka-article-id') === null) {
+                document.getElementById('main').innerHTML = '<div class="ui middle aligned center aligned segment">Oops! Something went wrong. It would be better if you go to the homepage. There you will find news and choose accordingly.</div>';
+            }
+
+            // Initialize socket
+            const socket = io('http://localhost:3030');
+            // Initialize the client
+            const client = feathers()
+                .configure(feathers.hooks())
+                .configure(feathers.socketio(socket));
+                
+            // Check if the id of the article to preview is saved in the storage
+            if (window.localStorage.getItem('sobanuka-article-id') != null) {
+                // Then fetch it
+                socket.emit('posts::get', window.localStorage.getItem('sobanuka-article-id'), (error, result) => {
+                    // Assign result to the vm's article prop
+                    console.log(result);
+                    vm.article = result;
+                    vm.comments = result.comments;
+                    if(result.titlePic.length > 4) {
+                        vm.ok = true;
+                    }
+
+                    // Then fetch the author of the article
+                    socket.emit('users::get', result.authorId, (error, result) => {
+                        vm.author = result;
+                    });
+                });
+            }
+
+            socket.on('posts patched', function(message) {
+                vm.article = message;
+                console.log(message);
+            })
+
+            let vm = new Vue({
+                el: '#main',
+                data: {
+                    article: {},
+                    author: {},
+                    ok: false,
+                    beforeComments: `Niba wakunze iyi nkuru kanda ku mutima werekaneko wayikunze, yisangize abandi kuri Facebook cyangwa ugire icyo uyivugaho muri comment. ***Kutwereka ko mwishimiye ibyo twanditse ni inkunga ikomeye***. *Niba ufite icyo utasobanukiwe neza, igitekerezo cyangwa icyo ushaka ko tugusobanurira, cyandike muri comment turagerageza gusubiza vuba.*`,
+                    comments: []
+                },
+                methods: {
+                    formatMonth: function(month) {
+                        switch (month) {
+                            case 1: return 'January';
+                            case 2: return 'February';
+                            case 3: return 'March';
+                            case 4: return 'April';
+                            case 5: return 'May';
+                            case 6: return 'June';
+                            case 7: return 'July';
+                            case 8: return 'August';
+                            case 9: return 'September';
+                            case 10: return 'October';
+                            case 11: return 'November';
+                            case 12: return 'December';
+                        }
+                    },
+                    format: function(content, id) {
+                        return marked(content);
+                    },
+                    save: function() {
+                        const comment = {
+                            message: document.getElementById('input-body').value,
+                            commenter: document.getElementById('input-name').value,
+                            date: new Date().toLocaleString()
+                        }
+                        if (comment.commenter != '' & comment.message != '') {
+                            socket.emit('posts::patch', vm.article._id, {comments: [ ...vm.article.comments, comment]}, (error, result) => {
+                                console.log(result);
+                                vm.comments.push(comment);
+                            });
+                        }
+                    },
+                    like: function({ _id }) {
+                        if (!window.sessionStorage.getItem('liked-article-' + _id)) {
+                            socket.emit('posts::patch', _id, {likes: vm.article.likes + 1}, (error, result) => {
+                                window.sessionStorage.setItem('liked-article-' + _id, true);
+                                vm.article.likes = result.likes;
+                            });
+                        }
+                    }
+                },
+                updated: function() {
+                    //document.getElementById('before-comments-content'). innerHTML = marked(vm.beforeComments);
+                    document.querySelector('title').innerText = this.article.title;
+                    const meta = document.querySelectorAll('meta');
+                    meta.item(3).setAttribute('content', document.URL);
+                    meta.item(5).setAttribute('content', this.article.title);
+                    meta.item(6).setAttribute('content', this.article.body);
+                    meta.item(7).setAttribute('content', 'http://localhost:3030' + document.getElementById('header-image').getAttribute('src').split('..')[1]);
+                    document.getElementById('fb-share-button').setAttribute('data-href', document.URL);
+
+                    Caman("#header-image", function () {
+                        this.brightness(10);
+                        this.contrast(20);
+                        this.vibrance(0);
+                        this.channels({ red: 0, green: 0, blue: 0 })
+                        this.render(function () {
+                            console.log("Done!");
+                        });
+                    });
+                }
+            });
+        </script>
+    </body>
+</html>

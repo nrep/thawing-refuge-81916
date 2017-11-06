@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="application-name" content="Sobanuka">
+        <meta name="description" content="Tubagezaho amakuru y' ikoranabuhanga, amateka, bikorwa bite n' imva n' imvano. Ntituri site y' amakuru gusa ahubwo turi community aho ubaza ugasubizwa">
+        <meta name="robots" content="index,follow">
+        <meta name="googlebot" content="index,follow">
+        <meta name="rating" content="General">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="apple-mobile-web-app-title" content="App Title">
+        <link rel="apple-touch-icon" href="/images/touch-icon.png">
+        <meta name="mobile-web-app-capable" content="yes">
+        <link rel="icon" sizes="192x192" href="images/web_hi_res_512.png">
+        <meta name="layoutmode" content="fitscreen"><!-- For UC Browser Mobile -->
+
+        <title> Sobanuka </title>
+
+        <link rel="stylesheet" type="text/css" href="libs/semantic-ui-css/semantic.css">
+        
+        <script src="scripts/jquery.min.js"></script>
+        <script src="scripts/iframe-content.js"></script>
+        <script src="libs/semantic-ui-css/semantic.js"></script>
+        <script src="scripts/vue.js"></script>
+        <script src="scripts/feathers.js"></script>
+        <script src="scripts/socket.io/socket.io.js"></script>
+        <script src="scripts/core.min.js"></script>
+        <script src="scripts/marked.js"></script>
+        <script src="scripts/caman.js"></script>
+        <style>
+            #nav,
+            #footer {
+                box-shadow: 0px 0px 4px 0px;
+                background-color: #1136EE;
+            }
+            #news {
+                margin-top: 6rem;
+                margin-bottom: 3rem;
+            }
+            a.ui.card img {
+                max-height: 13rem;
+            }
+            a.ui.card {
+                box-shadow: 0px 0px 8px 0px;
+            }
+            body {
+                background-color: #F3E8D3;
+            }
+            a.ui.card > div.content > div.header {
+                font-size: .9rem !important;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Sidebar Menu -->
+        <div class="ui vertical inverted sidebar menu" id="sidebar-menu">
+            <a class="active item">Overview</a>
+            <a class="item">Posts</a>
+            <a class="item">Users</a>
+            <a class="item">Comments</a>
+            <a class="item">Notifications</a>
+        </div>
+        <div class="ui large secondary inverted pointing top fixed menu" id="secondary-menu">
+            <span class="toc item">
+                <a href="#">
+                    <i id="sidebar-icon" class="sidebar icon"></i>
+                </a>
+                <span>Sobanuka</span>
+            </span>
+            <a class="right item">
+                <i class="user icon"></i>
+            </a>
+        </div>
+        <!--- Navigation bar -->
+        <div class="ui inverted blue fixed menu" id="nav">
+            <span class="toc item">
+                <a href="/">
+                    <i id="sidebar-icon" class="sidebar icon"></i>
+                    Sobanuka
+                </a>
+            </span>
+            <div class="right menu">
+                <a href="/login" class="item">
+                    <i class="user icon"></i>
+                </a>
+            </div>
+        </div>
+        <div class="pusher">
+            <main class="ui main container" id="main" role="main">
+                <div id="news">
+                    <div class="ui three cards">
+                        <a class="ui card" v-for="article of articles" v-on:click="viewArticle(article)">
+                            <img v-bind:src="'uploads/' + (article.titlePic.split('.').reduce((prev, next) => prev + 'home' + '.' + next))">
+                            <div class=" ui image"></div>
+                            <div class="content">
+                                <div class="header">
+                                    {{ article.title }}
+                                </div>
+                                <div class="description">
+                                    {{ article.body.slice(0,70) + '...' }}
+                                </div>
+                            </div>
+                            <div class="extra content">
+                                <span class="share">
+                                    <span>
+                                        <i class="like icon"></i>
+                                        {{ article.likes }}
+                                    </span>
+                                    &middot;
+                                    <span>
+                                        <i class="comments icon"></i>
+                                        {{ article.comments.length }}
+                                    </span>
+                                </span>
+                                <span class="right floated created">
+                                    <span v-bind:class="article.topics[0].color" class="ui label">
+                                        {{ article.topics[0].message }}
+                                    </span>
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </main>
+            <footer class="ui inverted vertical footer segment" id="footer">
+                <div class="ui container">
+                    <div class="ui stackable inverted divided equal height stackable grid">
+                        <div class="three wide column">
+                            <h4 class="ui inverted header">About</h4>
+                            <div class="ui inverted link list">
+                                <a href="#" class="item">Sitemap</a>
+                                <a href="#" class="item">Contact Us</a>
+                                <a href="#" class="item">About Us</a>
+                                <a href="#" class="item">Services</a>
+                            </div>
+                        </div>
+                        <div class="three wide column">
+                            <h4 class="ui inverted header">Read</h4>
+                            <div class="ui inverted link list">
+                                <a href="#" class="item">News</a>
+                                <a href="#" class="item">Technology</a>
+                                <a href="#" class="item">Music</a>
+                                <a href="#" class="item">Videos</a>
+                            </div>
+                        </div>
+                        <div class="ten wide column" data-class="facebook, twitter, google, vk, linkedin, instagram, youtube">
+                            <h4 class="ui inverted header">Share</h4>
+                            <button class="ui circular facebook button">
+                                <i class="facebook icon"></i>
+                                Facebook
+                            </button>
+                            <button class="ui circular twitter button">
+                                <i class="twitter icon"></i>
+                                Twitter
+                            </button>
+                            <button class="ui circular google plus button">
+                                <i class="google icon"></i>
+                                Google Plus
+                            </button>
+                            <h4 class="ui inverted header">Participate</h4>
+                            <button class="ui circular green button">
+                                <i class="signup icon"></i>
+                                Create an account
+                            </button>
+                            <button class="ui circular facebook group button">
+                                <i class="facebook group icon"></i>
+                                Join our Facebook group
+                            </button>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+        <script>
+
+            // Initialize socket
+            const socket = io('http://localhost:3030');
+            // Initialize the client
+            const client = feathers()
+                .configure(feathers.hooks())
+                .configure(feathers.socketio(socket));
+
+            socket.emit('posts::find', (error, results) => {
+                vm.articles = results.data;
+                console.log(results)
+            });
+
+            const vm = new Vue({
+                el: "#main",
+                data: {
+                    articles: []
+                },
+                methods: {
+                    viewArticle: function({ _id }) {
+                        window.localStorage.removeItem('sobanuka-article-id');
+                        window.localStorage.setItem('sobanuka-article-id', _id);
+                        window.location.assign('/article');
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

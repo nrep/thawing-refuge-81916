@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Standard Meta -->
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+        <!-- Site Properties -->
+        <title>New Post - Sobanuka</title>
+        <link rel="stylesheet" type="text/css" href="../libs/semantic-ui-css/semantic.css"/>
+        <link rel="stylesheet" type="text/css" href="../styles/jquery.tagsinput.css" />
+        <link rel="stylesheet" href="../libs/dropzone/dropzone.css">
+
+        <script src="../scripts/jquery.min.js"></script>
+        <script src="../libs/semantic-ui-css/semantic.js"></script>
+        <script src="../scripts/vue.js"></script>
+        <script src="../scripts/feathers.js"></script>
+        <script src="../scripts/jquery.tagsinput.js"></script>
+        <script src="../scripts/core.min.js"></script>
+        <script src="../libs/dropzone/dropzone.js"></script>
+        <script src="../scripts/socket.io/socket.io.js"></script>
+        <style>
+            #container {
+                margin-top: 4rem;
+                width: 75%;
+            }
+            #sidebar-menu {
+                background: #0D47A1;
+            }
+
+            #search-box {
+                padding-left: 1rem;
+            }
+
+            #nav,
+            #footer {
+                background-color: #1136EE;
+            }
+
+            #nav {
+                box-shadow: 0px 0px 4px 0px;
+            }
+
+            #input-title,
+            #input-description,
+            #input-body,
+            #tags {
+                margin-bottom: -1em;
+                border-left-style: none;
+                border-right-style: none;
+                border-radius: 0px;
+            }
+
+            #tags_tag {
+                border-style: none;
+                border-style: none;
+                border-radius: 0px;
+            }
+
+            #form,
+            #buttons {
+                margin-bottom: 2rem;
+            }
+
+            span.tag {
+                margin-left: 1rem;
+                margin-top: 0.25rem;
+            }
+
+            div.dz-image {
+                border-radius: 0px;
+            }
+
+            #input-pic-name {
+                border-style: none;
+                border-style: none;
+                border-radius: 0px;
+                display: none;
+            }
+
+            #save-pic-name-btn {
+                display: none;
+            }
+
+            div.ui.right.floated.segment {
+                position: relative;
+                left: 43rem;
+                bottom: 46.5rem;
+                margin-bottom: -46.5rem;
+            }
+
+            div.ui.right.floated.segment img {
+                height: 140px;
+                width: 200px;
+            }
+
+            #pic-action-btns {
+                padding-top: 1rem;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Sidebar Menu -->
+        <div class="ui vertical inverted sidebar menu" id="sidebar-menu">
+            <a class="active item">Overview</a>
+            <a class="item">Posts</a>
+            <a class="item">Users</a>
+            <a class="item">Comments</a>
+            <a class="item">Notifications</a>
+        </div>
+        <div class="ui large secondary inverted pointing top fixed menu" id="secondary-menu">
+            <span class="toc item">
+                <a href="#">
+                    <i id="sidebar-icon" class="sidebar icon"></i>
+                </a>
+                <span>Sobanuka</span>
+            </span>
+            <a class="right item">
+                <i class="user icon"></i>
+            </a>
+        </div>
+        <!--- Navigation bar -->
+        <div class="ui inverted blue fixed menu" id="nav">
+            <span class="toc item">
+                <a href="#">
+                    <i id="sidebar-icon" class="sidebar icon"></i>
+                </a>
+                <span>Sobanuka Editor</span>
+            </span>
+            <div class="right menu">
+                <div class="item">
+                    <div class="ui transparent inverted icon input" id="search-box">
+                        <i id="main-search-icon" class="search icon"></i>
+                    </div>
+                </div>
+                <a href="/login" class="item">
+                    <i class="user icon"></i>
+                </a>
+            </div>
+        </div>
+        <div class="pusher">
+            <main id="main" role="main">
+                <div id="container">
+                    <% include ../partials/editor.ejs %>
+                </div>
+                <div id="side-show" class="ui right floated segment">
+                    <div v-for="photo of photos">
+                        <div>
+                            <img v-bind:src="'../uploads/' + photo" v-bind:alt="photo">
+                        </div>
+                        <div id="pic-action-btns" class="ui buttons">
+                            <div v-bind:id="'make' + photo" v-on:click="makeTitlePhoto(photo)" class="ui green icon button" title="Make this pic the title pic of the post">
+                                <i class="tag icon"></i>
+                                Make It Title Photo
+                            </div>
+                            <div v-bind:id="'remove' + photo" v-on:click="removePhoto(photo)" class="ui red icon button" title="Remove pic from article">
+                                <i class="trash icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </body>
+    <script>
+        // If no id is to be found in the storage
+        // Tell the user to login first
+        if (window.localStorage.getItem('sobanuka-account-id') === null) {
+            document.getElementById('main').innerHTML = '<div class="ui middle aligned center aligned segment">Seems like you didn\'t login. Please <a href="/login">login</a> first.</div>';
+        }
+
+        // Attach events to the hamburger icon
+        // Events to toggle the sidebar state
+        $(document)
+            .ready(function() {
+                $('.ui.sidebar')
+                    .sidebar('attach events', '.toc.item')
+                ;
+            })
+        ;
+
+        // Initialize socket
+        const socket = io('http://localhost:3030');
+        // Initialize the client
+        const client = feathers()
+            .configure(feathers.hooks())
+            .configure(feathers.socketio(socket));
+
+        // Initiaize the upload service
+        const uploadService = client.service('uploads');
+        // Array to store ids of already uploaded files
+        let uploadedFileIds = [];
+
+        // Reference to DOM elements
+        const saveBtn = document.getElementById('save-btn');
+        const titleInput = document.getElementById('input-title');
+        const descriptionInput = document.getElementById('input-description');
+        const bodyInput = document.getElementById('input-body');
+        const tagsInput = document.getElementById('tags');
+        const previewBtn = document.getElementById('preview-btn');
+
+        // Array to store ids of all related pics
+        let allPicsIds = [];
+
+        // Id of the article to edit
+        const articleId = window.localStorage.getItem('article_id_to_edit');
+        // The article itself
+        let article = {};
+
+        // Initialize a variable to store the title pic's id
+        let titlePicId = '';
+
+        // Then after all the initializations
+        // Chek if there is an article to edit
+        if (window.localStorage.getItem('article_id_to_edit')) {
+            // Then if there's, Fetch it
+            socket.emit('posts::get', window.localStorage.getItem('article_id_to_edit'), (error, results) => {
+                // Initialize title, description, body and topics respectively from the results
+                const { title, description, body, topics, titlePic, allPics } = results;
+                // Assign values to respective inputs as expected
+                titleInput.value = title;
+                bodyInput.value = body;
+                $('#tags').importTags(topics.map(topic => topic.message)
+                    .reduce((prev, next) => prev + ',' + next)
+                );
+
+                // Try to assign the titlePic to titlePicId
+                // Otherwise assign the first index of allPics array to it
+                titlePicId = titlePic || allPics[0];
+                allPicsIds = allPics;
+
+                // Assign article pics to vm data
+                vm.photos = results.allPics;
+                // Assign results to the article
+                article = results;
+            });
+        }
+
+        // Colors to assign to tags before saving them as topics
+        const colors = [
+            'red', 
+            'orange', 
+            'yellow', 
+            'olive', 
+            'green', 
+            'teal', 
+            'blue', 
+            'violet', 
+            'purple', 
+            'pink',
+            'brown',
+            'grey',
+            'black'
+        ];
+
+        // Ids to be added to the tags before they are saved as topics
+        const topicsIds = [
+            'topic1',
+            'topic2',
+            'topic3',
+            'topic4',
+            'topic5',
+            'topic6',
+            'topic7'
+        ];
+
+        // When resource is succefully aploaded
+        uploadService.on('created', function(file) {
+            // Initailize a variable to store the id of the last uploaded resource
+            const { id } = file;
+            // Add the id to the to uploaded file ids
+            uploadedFileIds = [ ...uploadedFileIds, id];
+            // Set the id as the name that shows up on hover over the uploaded resource
+            document.querySelector('.dz-filename').firstElementChild.innerText = id;
+            // Log the id
+            console.log('Received file created event!', id);
+        });
+        
+        // Initialize Dropzone
+        Dropzone.options.myAwesomeDropzone = {
+            paramName: "uri",
+            uploadMultiple: false,
+            acceptedFiles: 'image/*, video/*',
+            addRemoveLinks: true,
+            init: function() {
+                // When file added, 
+                this.on('addedfile', function(file) {
+                    // Log it's name
+                    console.log('Original file name: ', file.name);
+                });
+
+                // When file is being uploaded, 
+                this.on('uploadprogress', function(file, progress) {
+                    // Log the progress
+                    console.log('Upload progress: ', progress);
+                });
+            }
+        }
+
+        // Initialize tagsInput
+        $('#tags').tagsInput({
+            'height':'3.2rem',
+            'width':'100%',
+            'interactive':true,
+            'defaultText':'Add a tag',
+            //'delimiter': [',',';'],   // Or a string with a single delimiter. Ex: ';'
+            'removeWithBackspace' : true,
+            'minChars' : 0,
+            //'maxChars' : 0, // if not provided there is no limit
+            'placeholderColor' : '#666666'
+        });
+
+        // Function that returns an array containing all tags
+        let tagsInputValues = () => tagsInput.value.split(',');
+        
+        // Function that returns all topics as an array of topic objects
+        let  getTopics = () => {
+            // Initialize the array
+            let topicsArray = [];
+            // Iterate over an array containing tags-input values
+            for (let i = 0; i < tagsInputValues(); i++) {
+                // Create an object named topic containing:
+                const topic = {
+                    // A message property that stores the value at index i
+                    message: tagsInputValues()[i],
+                    // Add a color to the topic
+                    // To be used later on the news page
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    // Add an id to the topic
+                    // Helps to add listeners
+                    dynamicId: topicsIds[i],
+                    // Add a url to be added to the DOM
+                    url: `/topic?id=${tagsInputValues()[i]}`
+                }
+                // Add the topic the array
+                topicsArray = [ ...topicsArray, topic];
+            }
+
+            // Log the array
+            console.log('All topics: ', topicsArray);
+            // Return the array
+            return topicsArray;
+        }
+
+        // Add click event listener to the save button
+        saveBtn.addEventListener('click', function(evt) {
+            // Update the post
+            updatePost(article, false);
+        });
+
+        // Function to update the post
+        // Update only what's needed
+        let updatePost = ({ isDraft, _id, allPics }, preview) => {
+            socket.emit('posts::patch', _id, {
+                title: titleInput.value,
+                titlePic: titlePicId || uploadedFileIds[0],
+                description: descriptionInput.value,
+                body: bodyInput.value,
+                topics: getTopics(),
+                updatedOn: {
+                    year: new Date().getFullYear(),
+                    month: new Date().getMonth(),
+                    date: new Date().getDate(),
+                    hour: new Date().getHours(),
+                    minutes: new Date().getMinutes(),
+                    seconds: new Date().getSeconds(),
+                    milliseconds: new Date().getMilliseconds()
+                },
+                updated: true,
+                draft: isDraft,
+                isPublished: !!isDraft,
+                url: encodeURI(`/article?${titleInput.value}`),
+                allPics: [ ...allPics, ...uploadedFileIds]
+            }, (error, message) => {
+                try {
+                    if (preview) {
+                        window.localStorage.removeItem('id-of-article-to-preview');
+                        window.localStorage.setItem('id-of-article-to-preview', message._id);
+                        window.location.assign('/dashboard/preview');
+                    }
+                    console.log('Post patched, the patched version is: ', message);
+                    console.log('Post patched, the original version is: ', article);
+                } catch (error) {
+                    console.log('An error occured: ', error);
+                }
+            });
+        }
+
+        // Initialize the vm
+        let vm = new Vue({
+            // Provide the dom node to watch
+            el: '#side-show',
+            // Declare data
+            data: {
+                // Assign allPicsIds to the photos data of the vm
+                photos: allPicsIds
+            },
+            // Declare vm methods
+            methods: {
+                // Function to make a certain photo a title photo
+                makeTitlePhoto: function(photo) {
+                    // Patch the article
+                    // Only patch the titlePic prop
+                    socket.emit('posts::patch', articleId, {titlePic: photo}, (error, results) => {
+                        // Assign photo as the titlePicId
+                        titlePicId = photo;
+                        // Log the results
+                        console.log('Patched the title pic, the actual article is: ', results);
+                    });
+                },
+                // Function to remove a photo from the post
+                removePhoto: function(photo) {
+                    // Remove the photo from the global article
+                    article.allPics.splice(article.allPics.indexOf(photo), 1);
+                    // Remove it also from the database
+                    // FIXME: Check if the photo being removed is the title pic
+                    // And assign another value to the title pic of the global article variable and also in the database
+                    socket.emit('posts::patch', articleId, {allPics: article.allPics}, (error, message) => {
+                        console.log('Patched', message);
+                    });
+                }
+            }
+        });
+
+        previewBtn.addEventListener('click', function(evt) {
+            console.log('i')
+            updatePost(article, true);
+        });
+    </script>
+</html>
