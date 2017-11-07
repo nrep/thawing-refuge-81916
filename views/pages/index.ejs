@@ -25,7 +25,7 @@
         <script src="scripts/iframe-content.js"></script>
         <script src="libs/semantic-ui-css/semantic.min.js"></script>
         <script src="scripts/vue.min.js"></script>
-        <script src="scripts/feathers.js"></script>
+        <script src="scripts/feathers.min.js"></script>
         <script src="scripts/socket.io/socket.io.js"></script>
         <script src="scripts/core.min.js"></script>
         <script src="scripts/marked.min.js"></script>
@@ -94,7 +94,7 @@
         <div class="pusher">
             <main class="ui main container" id="main" role="main">
                 <div id="news">
-                    <div class="ui three cards">
+                    <div class="ui four cards">
                         <a class="ui card" v-for="article of articles" v-on:click="viewArticle(article)">
                             <img v-bind:src="'uploads/' + (article.titlePic.split('.').reduce((prev, next) => prev + 'home' + '.' + next))">
                             <div class=" ui image"></div>
